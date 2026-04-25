@@ -36,7 +36,7 @@ CREATE DATABASE stand_db;
 Создайте `.env` на основе `.env.example`:
 
 ```bash
-cp .env.example .env
+cp .env .env
 ```
 
 Пример:
