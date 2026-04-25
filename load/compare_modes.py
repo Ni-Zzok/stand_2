@@ -17,6 +17,7 @@ class RunStats:
     total_requests: int
     success_count: int
     conflict_count: int
+    error_count: int
     avg_response_ms: float
     max_response_ms: float
 
@@ -83,11 +84,16 @@ async def scenario_b(client: CompareClient, http: httpx.AsyncClient, mode: str) 
 
 
 def build_stats(mode: str, statuses: list[int], times: list[float]) -> RunStats:
+    success_count = sum(1 for s in statuses if 200 <= s < 300)
+    conflict_count = sum(1 for s in statuses if s == 409)
+    error_count = len(statuses) - success_count - conflict_count
+
     return RunStats(
         mode=mode,
         total_requests=len(statuses),
-        success_count=sum(1 for s in statuses if s < 300),
-        conflict_count=sum(1 for s in statuses if s == 409),
+        success_count=success_count,
+        conflict_count=conflict_count,
+        error_count=error_count,
         avg_response_ms=round(statistics.mean(times), 3) if times else 0.0,
         max_response_ms=round(max(times), 3) if times else 0.0,
     )
@@ -97,7 +103,15 @@ def append_csv(path: str, rows: list[RunStats]) -> None:
     with open(path, 'w', newline='', encoding='utf-8') as fh:
         writer = csv.DictWriter(
             fh,
-            fieldnames=['mode', 'total_requests', 'success_count', 'conflict_count', 'avg_response_ms', 'max_response_ms'],
+            fieldnames=[
+                'mode',
+                'total_requests',
+                'success_count',
+                'conflict_count',
+                'error_count',
+                'avg_response_ms',
+                'max_response_ms',
+            ],
         )
         writer.writeheader()
         for row in rows:

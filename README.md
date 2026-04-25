@@ -111,6 +111,7 @@ CSV-колонки:
 - `total_requests`
 - `success_count`
 - `conflict_count`
+- `error_count`
 - `avg_response_ms`
 - `max_response_ms`
 
